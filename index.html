@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HLS Player</title>
+  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+
+</head>
+
+<body>
+  <video src="video" id="video" width="500" height="500" controls></video>
+  <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      var player
+      var src = '/videos/file_example_AVI_1280_1_5MG.m3u8'
+      const video = document.querySelector('video')
+      const deafultOptions = {}
+      if (Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(src);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
+          const availableQualities = hls.levels.map((l) => l.height)
+          availableQualities.unshift(0)
+          deafultOptions.quality = {
+            default: 0,
+            options: availableQualities,
+            forced: true,
+            onChange: (e) => upadteQuality(e)
+          }
+          deafultOptions.i18n = {
+            qualityLabel: {
+              0: "Auto"
+            }
+          }
+          player = new Plyr(video, deafultOptions)
+        });
+
+        hls.attachMedia(video);
+        window.hls = hls
+        function upadteQuality(newQuality) {
+          if (newQuality === 0) {
+            window.hls.currentLevel = -1
+          }
+          else {
+            window.hls.levels.forEach((level, levelIndex) => {
+              if (level.height === newQuality) {
+                window.hls.currentLevel = levelIndex
+              }
+            })
+          }
+        }
+      }
+    }
+    )
+
+  </script>
+</body>
+
+</html>
