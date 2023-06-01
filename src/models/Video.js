@@ -22,6 +22,13 @@ const VideoSchema = new Schema({
   ],
   url: {
     type: String,
+  },
+  ext:{
+    type: String,
+    required: true
+  },
+  newExt: {
+    type: String,
     required: true
   }
 }, {
