@@ -3,17 +3,18 @@ import 'dotenv/config'
 import cors from 'cors'
 import express from 'express'
 import morgan from 'morgan'
-import ffmpeg from 'fluent-ffmpeg'
-import path from "path"
 
 import connectDB from './config/db.js'
 import _initializePassport from './config/passport.js'
 import errorHandler from './middleware/errorHandler.js'
 import router from './routes.js'
-import { upload } from './middleware/multerUpload.js'
+
+import { initializeBullMQ, serverAdapter } from './config/bullmq/bullmq.js'
+
 
 connectDB()
 
+initializeBullMQ()
 
 const app = express()
 
@@ -23,6 +24,7 @@ app.use(express.json({ extended: false }))
 
 
 app.use('/', router)
+app.use("/admin", serverAdapter.getRouter());
 
 app.use(errorHandler)
 

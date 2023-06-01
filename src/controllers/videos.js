@@ -1,11 +1,9 @@
 import path from 'path'
-import fs from 'fs'
 
 import VideoModel from '../models/Video.js';
-import { generateHLS } from "../helpers/generateHLS.js";
-import { generateManifest } from "../helpers/generateManifest.js";
 import { transcodeVideo } from '../helpers/transcodeVideo.js';
 import { qualities } from '../utils/constants/qualities.js';
+import { exampleBullMq } from '../config/bullmq/bullmq.js';
 
 export const uploadVideo = async (req, res, next) => {
   const { file } = req
@@ -16,25 +14,17 @@ export const uploadVideo = async (req, res, next) => {
 
   try {
     const newFileData = await transcodeVideo(file, newExt, resolution)
-    const generateHLSPromises = qualities.map((quality) => generateHLS(newFileData, outputDir, quality));
-
-    await Promise.all(generateHLSPromises)
-    console.log("All HLS playlists generated successfully.");
-
-    const manifestContent = generateManifest(file, qualities);
-    const manifestPath = path.join(outputDir, manifestFileName);
-    fs.writeFileSync(manifestPath, manifestContent);
 
     const video = await VideoModel.create({
       name: fileOriginalName,
       userId: req.user.id,
       resolution: resolution,
-      url: manifestPath,
+      url: '',
       ext: path.extname(file.originalname),
       newExt: newExt
     })
 
-    console.log("Manifest file generated successfully.");
+    await exampleBullMq.add('Add', { video, newFileData, outputDir, qualities, file, manifestFileName });
 
     return res.status(200).json({ data: video })
   }

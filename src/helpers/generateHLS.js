@@ -5,6 +5,7 @@ import path from 'path'
 ffmpeg.setFfmpegPath(ffmpegPath.path);
 
 export const generateHLS = (file, outputDir, quality) => {
+
   const outputFileName = `${path.parse(file.fileName).name}_${quality.name}.m3u8`;
   const outputPath = path.join(outputDir, outputFileName);
 
