@@ -1,9 +1,9 @@
 
 export const userSchema = {
   type: 'object',
-  required: ['name', 'email', 'password'],
+  required: ['username', 'email', 'password'],
   properties: {
-    name: {
+    username: {
       type: 'string',
       minLength: 2
     },

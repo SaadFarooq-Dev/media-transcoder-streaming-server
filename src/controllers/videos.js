@@ -1,5 +1,5 @@
 import path from 'path'
-
+import fs, { createReadStream } from 'fs'
 import VideoModel from '../models/Video.js';
 import { transcodeVideo } from '../helpers/transcodeVideo.js';
 import { qualities } from '../utils/constants/qualities.js';
@@ -55,4 +55,18 @@ export const getVideos = async (req, res, next) => {
   } catch (error) {
     next(error)
   }
+}
+
+export const playVideo = (req, res, next) => {
+
+  const extractedPart = req.url.split('/play')[1];
+  const filePath = './videos' + extractedPart;
+
+  const videoStream = createReadStream(filePath)
+  console.log(fs.statSync(filePath).size);
+  res.writeHead(200, {
+    'Content-Type': 'application/vnd.apple.mpegurl',
+    'Content-Length': fs.statSync(filePath).size,
+  });
+  videoStream.pipe(res);
 }
