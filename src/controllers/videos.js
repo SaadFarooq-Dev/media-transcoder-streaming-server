@@ -3,7 +3,7 @@ import path from 'path'
 import VideoModel from '../models/Video.js';
 import { transcodeVideo } from '../helpers/transcodeVideo.js';
 import { qualities } from '../utils/constants/qualities.js';
-import { exampleBullMq } from '../config/bullmq/bullmq.js';
+import { Hls_Processing_Queue } from '../config/bullmq/initializeBullQueues.js';
 
 export const uploadVideo = async (req, res, next) => {
   const { file } = req
@@ -24,7 +24,7 @@ export const uploadVideo = async (req, res, next) => {
       newExt: newExt
     })
 
-    await exampleBullMq.add('Add', { video, newFileData, outputDir, qualities, file, manifestFileName });
+    await Hls_Processing_Queue.add('Add', { video, newFileData, outputDir, qualities, file, manifestFileName });
 
     return res.status(200).json({ data: video })
   }

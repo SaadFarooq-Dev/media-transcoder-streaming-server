@@ -8,14 +8,11 @@ import connectDB from './config/db.js'
 import _initializePassport from './config/passport.js'
 import errorHandler from './middleware/errorHandler.js'
 import router from './routes.js'
-
-import { initializeBullMQ, serverAdapter } from './config/bullmq/bullmq.js'
-
+import { serverAdapter } from './config/bullmq/serverAdapter.js'
+import { _initlializeBullMQ } from './config/bullmq.js'
 
 connectDB()
-
-initializeBullMQ()
-
+_initlializeBullMQ()
 const app = express()
 
 app.use(cors('*'))
