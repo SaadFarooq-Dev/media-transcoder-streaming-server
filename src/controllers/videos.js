@@ -4,24 +4,19 @@ import { generateHLS } from "../helpers/generateHLS.js";
 import VideoModel from '../models/Video.js';
 import { generateManifest } from "../helpers/generateManifest.js";
 import { transcodeVideo } from '../helpers/transcodeVideo.js';
-
+import { qualities } from '../utils/constants/qualities.js';
 
 export const uploadVideo = async (req, res, next) => {
   const { file } = req
-  const newExt = req.body.newExt
+  const { newExt, resolution } = req.body
   const outputDir = "videos/";
   const fileOriginalName = path.parse(file.originalname).name
-  const qualities = [
-    { resolution: "854x480", bitrate: "1500k", name: "480p" },
-    { resolution: "1280x720", bitrate: "3000k", name: "720p" },
-    { resolution: "1920x1080", bitrate: "5000k", name: "1080p" },
-  ];
   const manifestFileName = `${fileOriginalName}.m3u8`;
 
-  const newFileData = await transcodeVideo(file, newExt)
-
-  const generateHLSPromises = qualities.map((quality) => generateHLS(newFileData, outputDir, quality));
   try {
+    const newFileData = await transcodeVideo(file, newExt, resolution)
+    const generateHLSPromises = qualities.map((quality) => generateHLS(newFileData, outputDir, quality));
+
     await Promise.all(generateHLSPromises)
     console.log("All HLS playlists generated successfully.");
 
@@ -32,10 +27,10 @@ export const uploadVideo = async (req, res, next) => {
     const video = await VideoModel.create({
       name: fileOriginalName,
       userId: req.user.id,
-      qualities: qualities,
+      resolution: resolution,
       url: manifestPath,
       ext: path.extname(file.originalname),
-      newExt: req.body.newExt
+      newExt: newExt
     })
 
     console.log("Manifest file generated successfully.");

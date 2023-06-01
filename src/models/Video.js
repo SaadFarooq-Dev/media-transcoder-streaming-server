@@ -13,13 +13,10 @@ const VideoSchema = new Schema({
     required: true,
     ref: 'User'
   },
-  qualities: [
-    {
-      resolution: { type: String, required: true },
-      bitrate: { type: String, required: true },
-      name: { type: String, required: true }
-    }
-  ],
+  resolution: {
+    type: String,
+    required: true
+  },
   url: {
     type: String,
   },
