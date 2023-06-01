@@ -1,6 +1,6 @@
 import passportLocal from 'passport-local'
 
-import userModel from '../../models/User.js'
+import UserModel from '../../models/User.js'
 
 const LocalStrategy = passportLocal.Strategy
 
@@ -10,7 +10,7 @@ export const localStrategyLogin = new LocalStrategy(
   },
   async (email, password, done) => {
     // verify function as per documentation
-    const user = await userModel.findOne({ email })
+    const user = await UserModel.findOne({ email })
     if (!user) {
       return done(null, false, { message: 'User not found' })
     }

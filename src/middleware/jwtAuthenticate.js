@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 import passport from 'passport'
 
 export function authenticateJWT (req, res, next) {

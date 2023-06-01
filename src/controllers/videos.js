@@ -1,39 +1,46 @@
 import path from 'path'
-import fs from 'fs'
-import { generateHLS } from "../helpers/generateHLS.js";
-import { generateManifest } from "../helpers/generateManifest.js";
 
+import VideoModel from '../models/Video.js';
+import { transcodeVideo } from '../helpers/transcodeVideo.js';
+import { qualities } from '../utils/constants/qualities.js';
+import { Hls_Processing_Queue } from '../config/bullmq/initializeBullQueues.js';
 
 export const uploadVideo = async (req, res, next) => {
   const { file } = req
+  const { newExt, resolution } = req.body
+  const outputDir = "videos/";
+  const fileOriginalName = path.parse(file.originalname).name
+  const manifestFileName = `${fileOriginalName}.m3u8`;
 
-    const outputDir = "videos/";
+  try {
+    const newFileData = await transcodeVideo(file, newExt, resolution)
 
-    const qualities = [
-      { resolution: "854x480", bitrate: "1500k", name: "480p" },
-      { resolution: "1280x720", bitrate: "3000k", name: "720p" },
-      { resolution: "1920x1080", bitrate: "5000k", name: "1080p" },
-    ];
+    const video = await VideoModel.create({
+      name: fileOriginalName,
+      userId: req.user.id,
+      resolution: resolution,
+      url: '',
+      ext: path.extname(file.originalname),
+      newExt: newExt
+    })
 
-    const manifestFileName = `${path.parse(file.originalname).name}.m3u8`;
+    await Hls_Processing_Queue.add('Add', { video, newFileData, outputDir, qualities, file, manifestFileName });
 
-    const generateHLSPromises = qualities.map((quality) => generateHLS(file, outputDir, quality));
-
-    Promise.all(generateHLSPromises)
-      .then(() => {
-        console.log("All HLS playlists generated successfully.");
-
-        const manifestContent = generateManifest(file,qualities);
-        const manifestPath = path.join(outputDir, manifestFileName);
-        fs.writeFileSync(manifestPath, manifestContent);
-
-        console.log("Manifest file generated successfully.");
-
-        res.status(200).json("Video Processed!")
-      })
-      .catch((error) => {
-        console.error("Error generating HLS playlists:", error);
-        res.status(500).json({ mfg: "Error in messafe" })
-      });
+    return res.status(200).json({ data: video })
+  }
+  catch (error) {
+    next(error)
+  }
 }
 
+export const getVideo = async (req, res, next) => {
+  try {
+    const video = await VideoModel.findById(req.params.id)
+    if (video) {
+      return res.status(200).json(video)
+    }
+    return res.status(400).json({ errors: [{ message: 'No such document exists for the given Id' }] })
+  } catch (error) {
+    next(error)
+  }
+}
