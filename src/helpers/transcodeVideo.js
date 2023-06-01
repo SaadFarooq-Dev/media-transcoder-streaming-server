@@ -18,6 +18,7 @@ export const transcodeVideo = (file, newExt, resolution) => {
 
     const outputFilePath = `transcoded/${fileName}`;
     ffmpeg(file.path)
+      .addInputOption('-v error')
       .output(outputFilePath)
       .videoCodec(codecInfo.videoCodec)
       .audioCodec(codecInfo.audioCodec)
