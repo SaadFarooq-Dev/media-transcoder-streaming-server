@@ -62,11 +62,17 @@ export const playVideo = (req, res, next) => {
   const extractedPart = req.url.split('/play')[1];
   const filePath = './videos' + extractedPart;
 
-  const videoStream = createReadStream(filePath)
-  console.log(fs.statSync(filePath).size);
-  res.writeHead(200, {
-    'Content-Type': 'application/vnd.apple.mpegurl',
-    'Content-Length': fs.statSync(filePath).size,
+  fs.access(filePath, fs.constants.F_OK, (err) => {
+    if (err) {
+      return res.status(404).send('File not found');
+    }
+
+    const videoStream = createReadStream(filePath);
+    const stat = fs.statSync(filePath);
+    res.writeHead(200, {
+      'Content-Type': 'application/vnd.apple.mpegurl',
+      'Content-Length': stat.size,
+    });
+    videoStream.pipe(res);
   });
-  videoStream.pipe(res);
 }
