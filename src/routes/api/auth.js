@@ -7,7 +7,7 @@ import { userSchema } from '../../schemaValidator/userSchema.js'
 
 const authRouter = express.Router()
 
-authRouter.use('/signup', validate({ body: userSchema }), registerUser)
-authRouter.use('/login', passport.authenticate('login', { session: false, failWithError: true }), loginUser)
+authRouter.post('/signup', validate({ body: userSchema }), registerUser)
+authRouter.post('/login', passport.authenticate('login', { session: false, failWithError: true }), loginUser)
 
 export default authRouter

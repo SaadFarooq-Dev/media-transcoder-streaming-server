@@ -44,3 +44,15 @@ export const getVideo = async (req, res, next) => {
     next(error)
   }
 }
+
+export const getVideos = async (req, res, next) => {
+  try {
+    const video = await VideoModel.find({ userId: req.user.id })
+    if (video) {
+      return res.status(200).json(video)
+    }
+    return res.status(400).json({ errors: [{ message: 'No such document exists for the given Id' }] })
+  } catch (error) {
+    next(error)
+  }
+}
