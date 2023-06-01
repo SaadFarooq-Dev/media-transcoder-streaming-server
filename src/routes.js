@@ -10,7 +10,7 @@ router.use('/video', videoRouter)
 
 router.get('/', async (req, res) => {
   res.status(200).send('Api Running')
-}
+  }
 )
 
 export default router

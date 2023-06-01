@@ -13,6 +13,7 @@ import { _initlializeBullMQ } from './config/bullmq.js'
 
 connectDB()
 _initlializeBullMQ()
+
 const app = express()
 
 app.use(cors('*'))
