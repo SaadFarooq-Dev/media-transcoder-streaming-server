@@ -1,6 +1,6 @@
 import passportJWT from 'passport-jwt'
 
-import userModel from '../../models/User.js'
+import UserModel from '../../models/User.js'
 
 const ExtractJwt = passportJWT.ExtractJwt
 const JWTstrategy = passportJWT.Strategy
@@ -13,7 +13,7 @@ export default new JWTstrategy(
   },
   async (req, token, done) => {
     try {
-      const user = await userModel.findById(token.id).select('-password')
+      const user = await UserModel.findById(token.id).select('-password')
       if (user) {
         req.user = user
         return done(null, user)
