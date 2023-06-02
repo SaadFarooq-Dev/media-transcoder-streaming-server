@@ -1,9 +1,9 @@
 import path from 'path'
 import fs, { createReadStream } from 'fs'
+
 import VideoModel from '../models/Video.js';
-import { transcodeVideo } from '../helpers/transcodeVideo.js';
 import { qualities } from '../utils/constants/qualities.js';
-import { Hls_Processing_Queue } from '../config/bullmq/initializeBullQueues.js';
+import { flwo, Hls_Processing_Queue, Hls_Transcoding_Queue } from '../config/bullmq/initializeBullQueues.js';
 
 export const uploadVideo = async (req, res, next) => {
   const { file } = req
@@ -13,7 +13,6 @@ export const uploadVideo = async (req, res, next) => {
   const manifestFileName = `${fileOriginalName}.m3u8`;
 
   try {
-    const newFileData = await transcodeVideo(file, newExt, resolution)
 
     const video = await VideoModel.create({
       name: fileOriginalName,
@@ -24,7 +23,14 @@ export const uploadVideo = async (req, res, next) => {
       newExt: newExt
     })
 
-    await Hls_Processing_Queue.add('Add', { video, newFileData, outputDir, qualities, file, manifestFileName });
+    await flwo.add({
+      name: Hls_Processing_Queue.name,
+      queueName: Hls_Processing_Queue.name,
+      data: { video, outputDir, qualities, file, manifestFileName },
+      children: [
+        { name: Hls_Transcoding_Queue.name, data: { file, newExt, resolution }, queueName: Hls_Transcoding_Queue.name },
+      ],
+    });
 
     return res.status(200).json({ data: video })
   }
