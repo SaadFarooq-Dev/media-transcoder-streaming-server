@@ -12,7 +12,7 @@ const videoRouter = express.Router()
 videoRouter.get('/', authenticateJWT, getVideos)
 videoRouter.post('/upload', authenticateJWT, upload.single('video'), validate({ body: videoSchema }), uploadVideo)
 
-videoRouter.get('/play/:id', playVideo)
+videoRouter.get('/play/:video_id/:filename', playVideo)
 
 videoRouter.get('/:id', authenticateJWT, getVideo)
 

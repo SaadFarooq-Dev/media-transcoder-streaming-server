@@ -26,4 +26,3 @@ app.use("/admin", serverAdapter.getRouter());
 app.use(errorHandler)
 
 export default app
-
