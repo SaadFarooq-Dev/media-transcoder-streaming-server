@@ -4,7 +4,7 @@ import mongoose from 'mongoose'
 const { Schema } = mongoose
 
 const UserSchema = new Schema({
-  name: {
+  username: {
     type: String,
     max: 255,
     required: true

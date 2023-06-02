@@ -6,9 +6,8 @@ import { supportedCodecs } from "../utils/constants/supportedCodecs.js";
 
 ffmpeg.setFfmpegPath(ffmpegPath.path);
 
-export const transcodeVideo = (file, newExt, resolution) => {
+export const transcodeVideo = ({file, newExt, resolution}) => {
   return new Promise((resolve, reject) => {
-    // const ext = path.extname(file.originalname).toLowerCase().slice(1);
     const codecInfo = supportedCodecs.find((codec) => codec.extensions.includes(newExt));
     const fileName = `${path.parse(file.originalname).name}.${newExt}`
     if (!codecInfo) {

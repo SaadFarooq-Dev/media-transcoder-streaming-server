@@ -1,7 +1,7 @@
 import express from 'express'
 
 import { authenticateJWT } from '../../middleware/jwtAuthenticate.js'
-import { getVideo, getVideos, uploadVideo } from '../../controllers/videos.js'
+import { getVideo, getVideos, uploadVideo , playVideo} from '../../controllers/videos.js'
 import { upload } from '../../middleware/multerUpload.js'
 
 import validate from '../../middleware/validation.js'
@@ -10,7 +10,10 @@ import { videoSchema } from '../../schemaValidator/videoSchema.js'
 const videoRouter = express.Router()
 
 videoRouter.get('/', authenticateJWT, getVideos)
-videoRouter.get('/:id', authenticateJWT, getVideo)
 videoRouter.post('/upload', authenticateJWT, upload.single('video'), validate({ body: videoSchema }), uploadVideo)
+
+videoRouter.get('/play/:id', playVideo)
+
+videoRouter.get('/:id', authenticateJWT, getVideo)
 
 export default videoRouter
