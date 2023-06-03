@@ -33,3 +33,7 @@ export const loginUser = async (req, res, next) => {
     next(error)
   }
 }
+
+export const verifyToken = async (req, res, next) => {
+  return res.status(200).json({ isValid: true })
+}

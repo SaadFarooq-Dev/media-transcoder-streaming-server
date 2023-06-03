@@ -69,7 +69,7 @@ export const getVideos = async (req, res, next) => {
 
 export const playVideo = (req, res, next) => {
   const extractedPart = req.url.split('/play')[1];
-  const filePath = './videos' + '/64775f6daa5ef7a758886474/' + extractedPart;
+  const filePath = './videos' + `/${req.user._id}/` + extractedPart;
 
   fs.access(filePath, fs.constants.F_OK, (err) => {
     if (err) {
