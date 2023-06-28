@@ -6,7 +6,7 @@ import { BullMQAdapter } from '@bull-board/api/dist/src/queueAdapters/bullMQ.js'
 import { serverAdapter } from './bullmq/serverAdapter.js';
 
 export const createQueueMQ = (name) => new QueueMQ(name, { connection: redisOptions });
-export const flowProducer = (name) => new FlowProducer(name);
+export const flowProducer = (name) => new FlowProducer({connection: redisOptions});
 
 export const _initlializeBullMQ = () => {
   serverAdapter.setBasePath('/admin');

@@ -1,0 +1,21 @@
+version: '3'
+services:
+  web:
+    build: .
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - 3000:3000
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/mydatabase
+      - JWTSECRET=KSj23bqk4
+    depends_on:
+      - mongo
+  mongo:
+    image: mongo
+    ports:
+      - 27017:27017
+  redis:
+    image: 'redis:alpine'
+    ports:
+      - '6379:6379'

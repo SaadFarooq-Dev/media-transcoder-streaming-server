@@ -1,6 +1,5 @@
 node_modules
 config/default.json
-.env
 
 /node_modules
 /.pnp

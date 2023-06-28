@@ -8,27 +8,31 @@ import { flwo, Hls_Processing_Queue, Hls_Transcoding_Queue } from '../config/bul
 export const uploadVideo = async (req, res, next) => {
   const { file } = req
   const { newExt, resolution } = req.body
-  const outputDir = "videos/";
-  const fileOriginalName = path.parse(file.originalname).name
-  const manifestFileName = `${fileOriginalName}.m3u8`;
 
+  const fileOriginalName = path.parse(file.originalname).name
+  const user = req.user
   try {
 
     const video = await VideoModel.create({
       name: fileOriginalName,
-      userId: req.user.id,
+      userId: user.id,
       resolution: resolution,
       url: '',
       ext: path.extname(file.originalname),
       newExt: newExt
     })
 
+    const transcodePath = `transcoded/${user._id}/${video._id}/${video._id}.${newExt}`;
+    const fileName = `${video._id}.${newExt}`
+    const hlsPath = `videos/${user._id}/${video._id}`
+    const manifestFileName = `output.m3u8`;
+
     await flwo.add({
       name: Hls_Processing_Queue.name,
       queueName: Hls_Processing_Queue.name,
-      data: { video, outputDir, qualities, file, manifestFileName },
+      data: { video_id: video._id, hlsPath, qualities, manifestFileName },
       children: [
-        { name: Hls_Transcoding_Queue.name, data: { file, newExt, resolution }, queueName: Hls_Transcoding_Queue.name },
+        { name: Hls_Transcoding_Queue.name, data: { fileName, transcodePath, filePath: file.path, newExt, resolution }, queueName: Hls_Transcoding_Queue.name },
       ],
     });
 
@@ -64,9 +68,8 @@ export const getVideos = async (req, res, next) => {
 }
 
 export const playVideo = (req, res, next) => {
-
   const extractedPart = req.url.split('/play')[1];
-  const filePath = './videos' + extractedPart;
+  const filePath = './videos' + `/${req.user._id}/` + extractedPart;
 
   fs.access(filePath, fs.constants.F_OK, (err) => {
     if (err) {

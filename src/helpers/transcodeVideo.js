@@ -1,24 +1,29 @@
 import ffmpegPath from "@ffmpeg-installer/ffmpeg"
 import ffmpeg from 'fluent-ffmpeg'
 import path from 'path'
+import fs from 'fs'
 
 import { supportedCodecs } from "../utils/constants/supportedCodecs.js";
 
 ffmpeg.setFfmpegPath(ffmpegPath.path);
 
-export const transcodeVideo = ({file, newExt, resolution}) => {
+export const transcodeVideo = ({ fileName, transcodePath, filePath, newExt, resolution }) => {
   return new Promise((resolve, reject) => {
     const codecInfo = supportedCodecs.find((codec) => codec.extensions.includes(newExt));
-    const fileName = `${path.parse(file.originalname).name}.${newExt}`
+
     if (!codecInfo) {
       reject(`Unsupported file extension: ${newExt}`);
       return;
     }
 
-    const outputFilePath = `transcoded/${fileName}`;
-    ffmpeg(file.path)
+    const directory = path.dirname(transcodePath);
+    if (!fs.existsSync(directory)) {
+      fs.mkdirSync(directory, { recursive: true });
+    }
+
+    ffmpeg(filePath)
       .addInputOption('-v error')
-      .output(outputFilePath)
+      .output(transcodePath)
       .videoCodec(codecInfo.videoCodec)
       .audioCodec(codecInfo.audioCodec)
       .size(resolution)
@@ -28,18 +33,18 @@ export const transcodeVideo = ({file, newExt, resolution}) => {
       })
 
       .on("end", function () {
-        ffmpeg(file.path)
+        ffmpeg(filePath)
           .screenshots({
             timestamps: ["10%"],
-            folder: "./transcoded",
-            filename: `${file.filename}.${newExt}.png`,
+            folder: directory,
+            filename: `${fileName}.png`,
             size: "1080x?",
           })
           .on("error", function (err) {
             reject(err);
           })
           .on("end", function (data) {
-            resolve({fileName,outputFilePath});
+            resolve({ fileName, transcodePath });
           });
       })
       .run();

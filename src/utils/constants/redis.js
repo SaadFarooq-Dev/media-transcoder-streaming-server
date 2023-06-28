@@ -1,6 +1,6 @@
 export const redisOptions = {
   port: 6379,
-  host: 'localhost',
+  host: 'redis',
   password: '',
   tls: false,
 };

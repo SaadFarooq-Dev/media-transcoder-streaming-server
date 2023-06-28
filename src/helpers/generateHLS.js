@@ -4,12 +4,13 @@ import path from 'path'
 
 ffmpeg.setFfmpegPath(ffmpegPath.path);
 
-export const generateHLS = (file, outputDir, quality) => {
+export const generateHLS = (hlsPath, newFileData, quality) => {
 
-  const outputFileName = `${path.parse(file.fileName).name}_${quality.name}.m3u8`;
-  const outputPath = path.join(outputDir, outputFileName);
+  const outputFileName = `output_${quality.name}.m3u8`;
+  const outputPath = path.join(hlsPath, outputFileName);
 
-  const inputFilePath = file.outputFilePath;
+
+  const inputFilePath = newFileData.transcodePath;
 
   return new Promise((resolve, reject) => {
     ffmpeg(inputFilePath)
