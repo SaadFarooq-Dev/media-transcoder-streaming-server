@@ -4,7 +4,3 @@ wed
 saldmsa
 daskd
 sad
-dlaskn
-dlkasnd
-daskldnasd
-dkasd
